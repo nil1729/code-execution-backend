@@ -12,4 +12,7 @@ module.exports = {
       process.env.SUBMISSION_CONSUMER_SLEEP_DURATION_MS
     ),
   },
+  SUBMISSION_DIRECTORY: process.env.SUBMISSION_DIRECTORY,
+  WORKER_BASE_URL: process.env.WORKER_BASE_URL,
+  WORKER_API_TIMEOUT_MS: Number(process.env.WORKER_API_TIMEOUT_MS),
 };

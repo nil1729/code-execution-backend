@@ -1,6 +1,7 @@
 const { RABBIT_MQ } = require('./config/env');
 const logger = require('./config/logger');
 const pubsub = require('./config/pubsub');
+const runCode = require('./runner');
 
 class SubscriberService {
   constructor() {
@@ -30,8 +31,7 @@ class SubscriberService {
       const messageString = message.content.toString();
       try {
         const submission = JSON.parse(messageString);
-        console.log(submission);
-        await cls.sleep();
+        await runCode(submission);
         cls.channel.ack(message);
       } catch (e) {
         logger.error(`consumer service failed to process message : [${messageString}]`);

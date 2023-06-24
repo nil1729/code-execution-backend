@@ -15,6 +15,7 @@ app.post('/submit', async function (req, res) {
   const submission = {
     submissionId: new Date().getTime(),
     code: req.body.code,
+    lang: req.body.lang,
   };
   publisher.publishSubmission(submission);
   return res.status(200).json({
