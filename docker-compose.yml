@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - '8888:15672'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  orchestrator:
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    ports:
+      - '9999:9090'
+    env_file:
+      - ./_local/docker.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+
+  code_executor:
+    build:
+      context: ./code-executor
+      dockerfile: Dockerfile
+    env_file:
+      - ./_local/docker.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
