@@ -1,3 +1,3 @@
 # Code Execution Engine
 
-![Architecture](./asssets/architecture.png)
+![Architecture](./assets/architecture.png)
