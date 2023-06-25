@@ -3,9 +3,10 @@ const app = express();
 const { PORT, NODE_ENV, AVAILABLE_LANGUAGE } = require('./config/env');
 const logger = require('./config/logger');
 const runner = require('./runner');
+const os = require('os');
 
 app.get('', function (req, res) {
-  return res.send('<h1>Code Executor Worker</h1>');
+  return res.send(`<h1>Code Executor Worker (${os.hostname})</h1>`);
 });
 
 app.post('/run/:submissionId/:lang', async function (req, res) {
