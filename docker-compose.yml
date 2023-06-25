@@ -9,6 +9,9 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    networks:
+      - n_orchestrator
+      - n_executor
 
   orchestrator:
     build:
@@ -22,6 +25,8 @@ services:
       rabbitmq:
         condition: service_healthy
     restart: always
+    networks:
+      - n_orchestrator
 
   code_executor:
     build:
@@ -32,4 +37,46 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      code_executor_worker_lb:
+        condition: service_started
     restart: always
+    networks:
+      - n_executor
+    volumes:
+      - submissions:/usr/submissions
+
+  code_executor_worker_lb:
+    build:
+      context: ./code-executor-worker-lb
+      dockerfile: Dockerfile
+    depends_on:
+      code_executor_worker:
+        condition: service_started
+    restart: always
+    networks:
+      - n_executor
+      - n_worker
+
+  code_executor_worker:
+    build:
+      context: ./code-executor-worker
+      dockerfile: Dockerfile
+    env_file:
+      - ./_local/docker.env
+    deploy:
+      replicas: 5
+      restart_policy:
+        max_attempts: 3
+        condition: on-failure
+    networks:
+      - n_worker
+    volumes:
+      - submissions:/usr/submissions
+
+networks:
+  n_orchestrator:
+  n_executor:
+  n_worker:
+
+volumes:
+  submissions:
