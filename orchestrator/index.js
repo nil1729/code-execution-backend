@@ -3,8 +3,10 @@ const app = express();
 const { PORT, NODE_ENV } = require('./config/env');
 const logger = require('./config/logger');
 const publisher = require('./publisher-service');
+const cors = require('cors');
 
 app.use(express.json());
+app.use(cors());
 
 app.get('', function (req, res) {
   return res.send('<h1>Code Execution Engine</h1>');
