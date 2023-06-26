@@ -28,6 +28,17 @@ services:
     networks:
       - n_orchestrator
 
+  web:
+    build:
+      context: ./_web
+      dockerfile: Dockerfile
+    ports:
+      - '7777:80'
+    depends_on:
+      orchestrator:
+        condition: service_started
+    restart: always
+
   code_executor:
     build:
       context: ./code-executor
