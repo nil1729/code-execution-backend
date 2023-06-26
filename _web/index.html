@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Execution Engine</title>
+    <style>
+      .container,
+      form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      button {
+        outline: none;
+        box-shadow: none;
+        margin-top: 10px;
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3>Write Code in C</h3>
+      <form id="form" method="post">
+        <textarea name="code" id="code" cols="50" rows="10"></textarea>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <script defer>
+      const formEl = document.getElementById('form');
+      const codeInput = document.getElementById('code');
+      formEl.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const codeText = codeInput.value;
+
+        const requestBody = {
+          lang: 'c',
+          code: codeText,
+        };
+        const response = await fetch('http://localhost:9999/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+        }
+      });
+    </script>
+  </body>
+</html>
