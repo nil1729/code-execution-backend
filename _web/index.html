@@ -21,8 +21,12 @@
       .results {
         margin-top: 10px;
       }
+      .list-item {
+        margin-bottom: 50px;
+      }
       .list-item h4 {
         text-transform: uppercase;
+        margin-bottom: 6px;
       }
     </style>
   </head>
@@ -39,7 +43,7 @@
     </div>
 
     <script defer>
-      const ORCHESTRATOR_URL = 'http://localhost:9090';
+      const ORCHESTRATOR_URL = 'http://localhost:9999';
       let currentFetchInterval = null;
       const submissions = {};
       const formEl = document.getElementById('form');
@@ -84,19 +88,42 @@
 
       function getResults() {
         Object.keys(submissions).forEach((key) => {
-          fetchSubmissionResult(key).then(renderResults);
+          if (submissions[key].status !== 'completed') {
+            fetchSubmissionResult(key).then(renderResults);
+          }
         });
       }
 
       function renderResults() {
         let listItemHtml = ``;
         Object.keys(submissions).forEach((key) => {
+          let outputHtml = ``;
+          if (submissions[key].status === 'completed') {
+            if (submissions[key].output?.error) {
+              outputHtml = `
+                <h4 style="color: red">Error: </h4>
+                <textarea readonly cols="50" rows="10">
+                  ${submissions[key].output.error}
+                </textarea>
+              `;
+            }
+            if (submissions[key].output?.output) {
+              outputHtml = `
+                <h4 style="color: green">Stdout: </h4>
+                <textarea readonly cols="50" rows="10">
+                  ${submissions[key].output.output}
+                </textarea>
+              `;
+            }
+          }
+
           listItemHtml += `
             <li class="list-item">
               <h4>${key} <span style="margin-left: 10px;">(${submissions[key].status})</span></h4>
               <textarea readonly cols="50" rows="10">
                 ${submissions[key].code}
               </textarea>
+              ${outputHtml}
             </li>
           `;
         });

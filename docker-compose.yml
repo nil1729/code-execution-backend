@@ -61,6 +61,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       code_executor_worker_lb:
         condition: service_started
     restart: always

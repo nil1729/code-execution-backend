@@ -13,7 +13,7 @@ function saveFile(fileId, content, ext) {
 async function runCode(submission) {
   saveFile(submission.submissionId, submission.code, langExtMapper(submission.lang));
   const response = await callRunner(submission.submissionId, submission.lang);
-  console.log(response);
+  return response;
 }
 
 function langExtMapper(lang) {
