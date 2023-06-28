@@ -18,6 +18,12 @@
         margin-top: 10px;
         padding: 5px 10px;
       }
+      .results {
+        margin-top: 10px;
+      }
+      .list-item h4 {
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body>
@@ -28,8 +34,14 @@
         <button type="submit">Submit</button>
       </form>
     </div>
+    <div class="container results">
+      <ul id="result-list"></ul>
+    </div>
 
     <script defer>
+      const ORCHESTRATOR_URL = 'http://localhost:9090';
+      let currentFetchInterval = null;
+      const submissions = {};
       const formEl = document.getElementById('form');
       const codeInput = document.getElementById('code');
       formEl.addEventListener('submit', async function (e) {
@@ -40,7 +52,7 @@
           lang: 'c',
           code: codeText,
         };
-        const response = await fetch('http://localhost:9999/submit', {
+        const response = await fetch(`${ORCHESTRATOR_URL}/submit`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -48,10 +60,48 @@
           body: JSON.stringify(requestBody),
         });
         if (response.ok) {
-          const data = await response.json();
-          console.log(data);
+          const responseBody = await response.json();
+          submissions[responseBody.data.submissionId] = responseBody.data;
+          renderResults();
+          setupFetchInterval();
         }
       });
+
+      function setupFetchInterval() {
+        if (currentFetchInterval) {
+          clearInterval(currentFetchInterval);
+        }
+        currentFetchInterval = setInterval(getResults, 5000);
+      }
+
+      async function fetchSubmissionResult(id) {
+        const response = await fetch(`${ORCHESTRATOR_URL}/results/${id}`);
+        if (response.ok) {
+          const responseBody = await response.json();
+          submissions[id] = responseBody.data;
+        }
+      }
+
+      function getResults() {
+        Object.keys(submissions).forEach((key) => {
+          fetchSubmissionResult(key).then(renderResults);
+        });
+      }
+
+      function renderResults() {
+        let listItemHtml = ``;
+        Object.keys(submissions).forEach((key) => {
+          listItemHtml += `
+            <li class="list-item">
+              <h4>${key} <span style="margin-left: 10px;">(${submissions[key].status})</span></h4>
+              <textarea readonly cols="50" rows="10">
+                ${submissions[key].code}
+              </textarea>
+            </li>
+          `;
+        });
+        document.getElementById('result-list').innerHTML = listItemHtml;
+      }
     </script>
   </body>
 </html>
