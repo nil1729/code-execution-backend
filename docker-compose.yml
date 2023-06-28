@@ -13,6 +13,17 @@ services:
       - n_orchestrator
       - n_executor
 
+  redis:
+    image: 'redis'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - n_orchestrator
+      - n_executor
+
   orchestrator:
     build:
       context: ./orchestrator
@@ -23,6 +34,8 @@ services:
       - ./_local/docker.env
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: always
     networks:
