@@ -4,6 +4,7 @@ const { PORT, NODE_ENV } = require('./config/env');
 const logger = require('./config/logger');
 const publisher = require('./publisher-service');
 const cors = require('cors');
+const { cacheUtil } = require('./utils');
 
 app.use(express.json());
 app.use(cors());
@@ -18,10 +19,25 @@ app.post('/submit', async function (req, res) {
     submissionId: new Date().getTime(),
     code: req.body.code,
     lang: req.body.lang,
+    status: 'queued',
   };
+  await cacheUtil.saveSubmission(submission);
   publisher.publishSubmission(submission);
   return res.status(200).json({
-    message: 'code submission successfull',
+    message: 'code submission successful',
+    data: submission,
+  });
+});
+
+app.get('/results/:submissionId', async function (req, res) {
+  const cachedResult = await cacheUtil.getSubmission(req.params.submissionId);
+  if (cachedResult) {
+    return res.status(200).json({
+      data: cachedResult,
+    });
+  }
+  return res.status(404).json({
+    message: 'requested submission not found',
   });
 });
 
